@@ -15,6 +15,11 @@
 		</environment>
 	</environments>
 	<!-- 将我们写好的sql映射文件（EmployeeMapper.xml）一定要注册到全局配置文件（mybatis-config.xml）中 -->
+	<!--
+		两个重要的配置文件：
+		1，mybatis的全局配置文件：包含数据库连接池信息，事务管理器信息等...系统运行环境信息
+	 	2，sql映射文件：保存了每一个sql语句的映射信息：将sql抽取出来。
+	-->
 	<mappers>
 		<mapper resource="EmployeeMapper.xml" />
 	</mappers>
