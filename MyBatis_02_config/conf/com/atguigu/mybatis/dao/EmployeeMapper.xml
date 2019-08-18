@@ -3,24 +3,52 @@
  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.atguigu.mybatis.dao.EmployeeMapper">
-<!-- 
+<!--
 namespace:名称空间;指定为接口的全类名
+public Employee getEmpById(Integer id);
+ -->
+
+<!--
+接口式编程
+1，原生：		Dao/接口	====>  DaoImpl/实现类,
+2，mybatis：	Mapper/接口	====>  Mapper.xml/配置文件 （将接口和xml进行绑定）
+mapper接口没有实现类，但是mybatis会为这selectEmp个接口生成一个代理对象。
+EmployeeMapper empMapper =	sqlSession.getMapper(EmployeeMapper.class);
+-->
+
+<!--
 id：唯一标识
 resultType：返回值类型
 #{id}：从传递过来的参数中取出id值
+-->
+        <select id="selectEmp" resultType="com.atguigu.mybatis.bean.Employee">
+            select id,last_name lastName,email,gender from tbl_employee where id = #{id}
+        </select>
 
-public Employee getEmpById(Integer id);
- -->
- 	<select id="getEmpById" resultType="com.atguigu.mybatis.bean.Employee">
+	<select id="getEmpById" resultType="com.atguigu.mybatis.bean.Employee">
 		select * from tbl_employee where id = #{id}
 	</select>
-	<select id="getEmpById" resultType="com.atguigu.mybatis.bean.Employee"
-		databaseId="mysql">
-		select * from tbl_employee where id = #{id}
-	</select>
-	<select id="getEmpById" resultType="com.atguigu.mybatis.bean.Employee"
-		databaseId="oracle">
-		select EMPLOYEE_ID id,LAST_NAME	lastName,EMAIL email 
-		from employees where EMPLOYEE_ID=#{id}
-	</select>
+	<!--
+		前置条件：
+		1，在setting中设置好数据库字段跟类的成员变量匹配规则。<setting name="mapUnderscoreToCamelCase" value="true"/>
+		2，数据库表的字段格式： 英文名 + 下划线
+	    3，resultType中，类的成员变量格式：驼峰
+		直接取数据库的各个字段，不做转换。
+		1，select id,last_name,email,gender from employees where id = #{id}
+		2，select * from tbl_employee where id = #{id}
+		如果数据库表的某个字段格式不是  英文名 + 下划线，则需使用
+		1，resultMap做字段映射
+		2，或者直接在查询语句里面用as指定
+
+		databaseId要跟前面环境指定的数据库保持一致。<environments default="dev_mysql">
+		当然也可以省略啦
+		<select id="getEmpById" resultType="com.atguigu.mybatis.bean.Employee"
+			databaseId="mysql">
+			select * from tbl_employee where id = #{id}
+		</select>
+		<select id="getEmpById" resultType="com.atguigu.mybatis.bean.Employee"
+			databaseId="oracle">
+			select *  from tbl_employee where id=#{id}
+		</select>
+	-->
 </mapper>

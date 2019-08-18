@@ -1,57 +1,57 @@
-单个参数：mybatis不会做特殊处理，
-	#{参数名/任意名}：取出参数值。
+========================单个参数 多个参数 Map 命名参数 POJO TO================================
+1，单个参数：mybatis不会做特殊处理，
+	#{参数名/任意名}：都可以取出参数值。
 	
-多个参数：mybatis会做特殊处理。
-	多个参数会被封装成 一个map，
-		key：param1...paramN,或者参数的索引也可以
-		value：传入的参数值
-	#{}就是从map中获取指定的key的值；
+2，多个参数：mybatis会做特殊处理。
+	多个参数会被封装成一个map
+	map的key值：param1,param2,...paramN,或者arg0,arg1,...argN
+	map的value值：传入的参数值
+	#{key}就是从map中获取指定的key对应的value值；
 	
-	异常：
-	org.apache.ibatis.binding.BindingException: 
-	Parameter 'id' not found. 
-	Available parameters are [1, 0, param1, param2]
-	操作：
-		方法：public Employee getEmpByIdAndLastName(Integer id,String lastName);
-		取值：#{id},#{lastName}
+多个参数产生异常：
+### Cause: org.apache.ibatis.binding.BindingException: Parameter 'id' not found. Available parameters are [arg1, arg0, param1, param2]
+产生异常的操作如下：
+方法：public Employee getEmpByIdAndLastName(Integer id,String lastName);
+取值：#{id},#{lastName}
 
-【命名参数】：明确指定封装参数时map的key；@Param("id")
-	多个参数会被封装成 一个map，
-		key：使用@Param注解指定的值
-		value：参数值
+3，Map：
+如果多个参数不是业务模型中的数据，没有对应的pojo，不经常使用，为了方便，我们也可以传入map
+	#{key}：取出map中对应的值
+	
+4，命名参数：明确指定封装参数时map的key；@Param("id")
+	多个参数会被封装成一个map，
+	key：使用@Param注解指定的值
+	value：参数值
 	#{指定的key}取出对应的参数值
 
-
-POJO：
+5，POJO：
 如果多个参数正好是我们业务逻辑的数据模型，我们就可以直接传入pojo；
 	#{属性名}：取出传入的pojo的属性值	
 
-Map：
-如果多个参数不是业务模型中的数据，没有对应的pojo，不经常使用，为了方便，我们也可以传入map
-	#{key}：取出map中对应的值
-
-TO：
+6，TO：
 如果多个参数不是业务模型中的数据，但是经常要使用，推荐来编写一个TO（Transfer Object）数据传输对象
 Page{
 	int index;
 	int size;
 }
-
-========================思考================================	
+========================思考题================================	
 public Employee getEmp(@Param("id")Integer id,String lastName);
-	取值：id==>#{id/param1}   lastName==>#{param2}
+	取值：id==>#{id/param1/arg0}   lastName==>#{param2/arg1}
 
 public Employee getEmp(Integer id,@Param("e")Employee emp);
 	取值：id==>#{param1}    lastName===>#{param2.lastName/e.lastName}
 
-##特别注意：如果是Collection（List、Set）类型或者是数组，
-		 也会特殊处理。也是把传入的list或者数组封装在map中。
-			key：Collection（collection）,如果是List还可以使用这个key(list)
-				数组(array)
+========================Collection  List  数组================================	
+##特别注意：如果是Collection（List）类型或者是数组，也会特殊处理。
+			也是把传入的list或者数组封装在map中。
+			key值：Collection==> collection/list
+						List==>collection/list
+						Array==>array
+				
 public Employee getEmpById(List<Integer> ids);
 	取值：取出第一个id的值：   #{list[0]}
 	
-========================结合源码，mybatis怎么处理参数==========================
+========================结合源码，理解mybatis怎么处理参数==========================
 总结：参数多时会封装map，为了不混乱，我们可以使用@Param来指定封装时使用的key；
 #{key}就可以取出map中的值；
 
