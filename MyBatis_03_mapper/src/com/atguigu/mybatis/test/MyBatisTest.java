@@ -93,7 +93,7 @@ public class MyBatisTest {
 		try{
 			EmployeeMapper mapper = openSession.getMapper(EmployeeMapper.class);
 			//测试添加
-			Employee employee = new Employee(null, "jerry4","javahiker@126.com", "1");
+			Employee employee = new Employee(null, "jerry4",null, "1");
 			Long res = mapper.addEmp(employee);
 			System.out.println(employee.getId());
 			System.out.println(res);
