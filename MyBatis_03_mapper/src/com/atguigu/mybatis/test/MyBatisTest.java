@@ -132,7 +132,7 @@ public class MyBatisTest {
 	 * 参数传map
 	 */
 	@Test
-	public void test06_02() throws IOException{
+	public void test06() throws IOException{
 		SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
 		SqlSession openSession = sqlSessionFactory.openSession();
 		try{
@@ -152,7 +152,7 @@ public class MyBatisTest {
 	 * 命名参数
 	 */
 	@Test
-	public void test06_01() throws IOException{
+	public void test07() throws IOException{
 		SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
 		SqlSession openSession = sqlSessionFactory.openSession();
 		try{
@@ -168,7 +168,7 @@ public class MyBatisTest {
 	 * POJO
 	 */
 	@Test
-	public void test06_03() throws IOException{
+	public void test08() throws IOException{
 		SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
 		SqlSession openSession = sqlSessionFactory.openSession();
 		try{
@@ -190,7 +190,7 @@ public class MyBatisTest {
 	 		Array==>array
 	 */
 	@Test
-	public void test06_04() throws IOException{
+	public void test09() throws IOException{
 		SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
 		SqlSession openSession = sqlSessionFactory.openSession();
 		try{
@@ -212,37 +212,58 @@ public class MyBatisTest {
 		}
 	}
 
+	/**
+	 * 返回值是一个集合，要写集合中元素的类型
+	 */
 	@Test
-	public void test06() throws IOException{
+	public void test10() throws IOException{
 		SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
 		SqlSession openSession = sqlSessionFactory.openSession();
 		try{
 			EmployeeMapper mapper = openSession.getMapper(EmployeeMapper.class);
-			Map<String, Object> map = new HashMap<>();
-			map.put("id", 2);
-			map.put("lastName", "Tom");
-			map.put("tableName", "tbl_employee");
-			Employee employee = mapper.getEmpByMap(map);
-
-			System.out.println(employee);
-
-			/*List<Employee> like = mapper.getEmpsByLastNameLike("%e%");
+			List<Employee> like = mapper.getEmpsByLastNameLike("%e%");
 			for (Employee employee : like) {
 				System.out.println(employee);
-			}*/
+			}
+		}finally{
+			openSession.close();
+		}
+	}
 
-			/*Map<String, Object> map = mapper.getEmpByIdReturnMap(1);
-			System.out.println(map);*/
-			/*Map<String, Employee> map = mapper.getEmpByLastNameLikeReturnMap("%r%");
-			System.out.println(map);*/
+	/**
+	 * 返回一条记录的map；key就是列名，值就是对应的值
+	 */
+	@Test
+	public void test11() throws IOException{
+		SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
+		SqlSession openSession = sqlSessionFactory.openSession();
+		try{
+			EmployeeMapper mapper = openSession.getMapper(EmployeeMapper.class);
+			Map<String, Object> map = mapper.getEmpByIdReturnMap(1);
+			System.out.println(map);
+		}finally{
+			openSession.close();
+		}
+	}
 
+	/**
+	 *
+	 */
+	@Test
+	public void test12() throws IOException{
+		SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
+		SqlSession openSession = sqlSessionFactory.openSession();
+		try{
+			EmployeeMapper mapper = openSession.getMapper(EmployeeMapper.class);
+			Map<String, Employee> map = mapper.getEmpByLastNameLikeReturnMap("%r%");
+			System.out.println(map);
 		}finally{
 			openSession.close();
 		}
 	}
 
 	@Test
-	public void test07() throws IOException{
+	public void test13() throws IOException{
 		SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
 		SqlSession openSession = sqlSessionFactory.openSession();
 		try{
@@ -264,7 +285,7 @@ public class MyBatisTest {
 	}
 	
 	@Test
-	public void test08() throws IOException{
+	public void test14() throws IOException{
 		SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
 		SqlSession openSession = sqlSessionFactory.openSession();
 		
