@@ -1,72 +1,72 @@
-单个参数：mybatis不会做特殊处理，
-	#{参数名/任意名}：取出参数值。
+========================单个参数 多个参数 Map 命名参数 POJO TO================================
+1，单个参数：mybatis不会做特殊处理，
+	#{参数名/任意名}：都可以取出参数值。
 	
-多个参数：mybatis会做特殊处理。
-	多个参数会被封装成 一个map，
-		key：param1...paramN,或者参数的索引也可以
-		value：传入的参数值
-	#{}就是从map中获取指定的key的值；
+2，多个参数：mybatis会做特殊处理。
+	多个参数会被封装成一个map
+	map的key值：param1,param2,...paramN,或者arg0,arg1,...argN
+	map的value值：传入的参数值
+	#{key}就是从map中获取指定的key对应的value值；
 	
-	异常：
-	org.apache.ibatis.binding.BindingException: 
-	Parameter 'id' not found. 
-	Available parameters are [1, 0, param1, param2]
-	操作：
-		方法：public Employee getEmpByIdAndLastName(Integer id,String lastName);
-		取值：#{id},#{lastName}
+多个参数产生异常：
+### Cause: org.apache.ibatis.binding.BindingException: Parameter 'id' not found. Available parameters are [arg1, arg0, param1, param2]
+产生异常的操作如下：
+方法：public Employee getEmpByIdAndLastName(Integer id,String lastName);
+取值：#{id},#{lastName}
 
-【命名参数】：明确指定封装参数时map的key；@Param("id")
-	多个参数会被封装成 一个map，
-		key：使用@Param注解指定的值
-		value：参数值
+3，Map：
+如果多个参数不是业务模型中的数据，没有对应的pojo，不经常使用，为了方便，我们也可以传入map
+	#{key}：取出map中对应的值
+	
+4，命名参数：明确指定封装参数时map的key；@Param("id")
+	多个参数会被封装成一个map，
+	key：使用@Param注解指定的值
+	value：参数值
 	#{指定的key}取出对应的参数值
 
-
-POJO：
+5，POJO：
 如果多个参数正好是我们业务逻辑的数据模型，我们就可以直接传入pojo；
 	#{属性名}：取出传入的pojo的属性值	
 
-Map：
-如果多个参数不是业务模型中的数据，没有对应的pojo，不经常使用，为了方便，我们也可以传入map
-	#{key}：取出map中对应的值
-
-TO：
+6，TO：
 如果多个参数不是业务模型中的数据，但是经常要使用，推荐来编写一个TO（Transfer Object）数据传输对象
 Page{
 	int index;
 	int size;
 }
-
-========================思考================================	
+========================思考题================================	
 public Employee getEmp(@Param("id")Integer id,String lastName);
-	取值：id==>#{id/param1}   lastName==>#{param2}
+	取值：id==>#{id/param1/arg0}   lastName==>#{param2/arg1}
 
 public Employee getEmp(Integer id,@Param("e")Employee emp);
 	取值：id==>#{param1}    lastName===>#{param2.lastName/e.lastName}
 
-##特别注意：如果是Collection（List、Set）类型或者是数组，
-		 也会特殊处理。也是把传入的list或者数组封装在map中。
-			key：Collection（collection）,如果是List还可以使用这个key(list)
-				数组(array)
+========================Collection  List  数组================================	
+##特别注意：如果是Collection（List）类型或者是数组，也会特殊处理。
+			也是把传入的list或者数组封装在map中。
+			key值：Collection==> collection/list
+						List==>collection/list
+						Array==>array
+				
 public Employee getEmpById(List<Integer> ids);
 	取值：取出第一个id的值：   #{list[0]}
 	
-========================结合源码，mybatis怎么处理参数==========================
+========================结合源码，理解mybatis怎么处理参数==========================
 总结：参数多时会封装map，为了不混乱，我们可以使用@Param来指定封装时使用的key；
 #{key}就可以取出map中的值；
 
 (@Param("id")Integer id,@Param("lastName")String lastName);
 ParamNameResolver解析参数封装map的；
-//1、names：{0=id, 1=lastName}；构造器的时候就确定好了
+//1、names 是一个map：{0=id, 1=lastName}；
 
-	确定流程：
-	1.获取每个标了param注解的参数的@Param的值：id，lastName；  赋值给name;
-	2.每次解析一个参数给map中保存信息：（key：参数索引，value：name的值）
+	流程：
+	1.获取每个@Param注解的参数名称：id，lastName；赋值给name。
+	2.每次解析一个参数，放在map中：（map的key：参数下标，map的value：用name表示）
 		name的值：
 			标注了param注解：注解的值
 			没有标注：
-				1.全局配置：useActualParamName（jdk1.8）：name=参数名
-				2.name=map.size()；相当于当前元素的索引
+			1.全局配置：useActualParamName（jdk1.8）：name=参数名
+			2.name=map.size()；相当于当前元素的索引
 	{0=id, 1=lastName,2=2}
 				
 
@@ -78,7 +78,7 @@ public Object getNamedParams(Object[] args) {
     if (args == null || paramCount == 0) {
       return null;
      
-    //2、如果只有一个元素，并且没有Param注解；args[0]：单个参数直接返回
+    //2、如果只有一个元素，并且没有@Param注解；args[0]：单个参数直接返回
     } else if (!hasParamAnnotation && paramCount == 1) {
       return args[names.firstKey()];
       
@@ -87,11 +87,11 @@ public Object getNamedParams(Object[] args) {
       final Map<String, Object> param = new ParamMap<Object>();
       int i = 0;
       
-      //4、遍历names集合；{0=id, 1=lastName,2=2}
+      //4、names是一个map，遍历 names ；{0=id, 1=lastName,2=2}
       for (Map.Entry<Integer, String> entry : names.entrySet()) {
       
-      	//names集合的value作为key;  names集合的key又作为取值的参考args[0]:args【1，"Tom"】:
-      	//eg:{id=args[0]:1,lastName=args[1]:Tom,2=args[2]}
+      	//names的value作为key;  names的key又作为数组的下标 args【1，"Tom"】:
+      	//eg:{键id，值args[0] (等于1)。键lastName，值args[1] (等于Tom)。键2，值args[2]}
         param.put(entry.getValue(), args[entry.getKey()]);
         
         
@@ -116,15 +116,15 @@ ${}：可以获取map中的值或者pojo对象属性的值；
 
 select * from tbl_employee where id=${id} and last_name=#{lastName}
 Preparing: select * from tbl_employee where id=2 and last_name=?
-	区别：
-		#{}:是以预编译的形式，将参数设置到sql语句中；PreparedStatement；防止sql注入
-		${}:取出的值直接拼装在sql语句中；会有安全问题；
-		大多情况下，我们去参数的值都应该去使用#{}；
-		
-		原生jdbc不支持占位符的地方我们就可以使用${}进行取值
-		比如分表、排序。。。；按照年份分表拆分
-			select * from ${year}_salary where xxx;
-			select * from tbl_employee order by ${f_name} ${order}
+区别：
+	#{}:是以预编译的形式，将参数设置到sql语句中；PreparedStatement；防止sql注入
+	${}:取出的值直接拼装在sql语句中；会有安全问题；
+	大多情况下，我们去参数的值都应该去使用#{}；
+	
+	原生jdbc不支持占位符的地方我们就可以使用${}进行取值
+	比如分表（如按照年份分表拆分）、排序
+		select * from ${year}_salary where xxx;
+		select * from tbl_employee order by ${f_name} ${order}
 
 #{}:更丰富的用法：
 	规定参数的一些规则：
@@ -132,17 +132,20 @@ Preparing: select * from tbl_employee where id=2 and last_name=?
 	resultMap、 typeHandler、 jdbcTypeName、 expression（未来准备支持的功能）；
 
 	jdbcType通常需要在某种特定的条件下被设置：
-		在我们数据为null的时候，有些数据库可能不能识别mybatis对null的默认处理。比如Oracle（报错）；
-		
-		JdbcType OTHER：无效的类型；因为mybatis对所有的null都映射的是原生Jdbc的OTHER类型，oracle不能正确处理;
-		
+		mybatis对所有的null的默认处理都映射成原生Jdbc的OTHER类型，oracle不能正确处理;
+		JdbcType OTHER：对于oracle来说就是无效的类型;
 		由于全局配置中：jdbcTypeForNull=OTHER；oracle不支持；两种办法
-		1、#{email,jdbcType=OTHER};
-		2、jdbcTypeForNull=NULL
+		1、单独设置 #{email,jdbcType=NULL}，设置如下。
+		<insert id="addEmp" databaseId="oracle">
+			<selectKey keyProperty="id" order="BEFORE" resultType="Integer">
+				select SEQ_TBL_EMPLOYEE.nextval from dual
+			</selectKey>
+			 insert into tbl_employee(ID,LAST_NAME,EMAIL,GENDER)
+			 values(#{id},#{lastName},#{email,jdbcType=NULL},#{gender})
+		</insert>
+		2、全局设置jdbcTypeForNull=NULL，配置如下
 			<setting name="jdbcTypeForNull" value="NULL"/>
-			
-		
-		
+		个人推荐用第2种方法
 		
 
 	

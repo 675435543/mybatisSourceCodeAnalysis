@@ -14,9 +14,7 @@ public class Employee {
 	public Employee() {
 		super();
 	}
-	
-	
-	
+
 	public Employee(Integer id, String lastName, String email, String gender,
 			Department dept) {
 		super();
