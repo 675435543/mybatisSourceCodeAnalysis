@@ -36,6 +36,7 @@ resultType：返回值类型
 		直接取数据库的各个字段，不做转换。
 		1，select id,last_name,email,gender from employees where id = #{id}
 		2，select * from tbl_employee where id = #{id}
+		在setting里面不做配置的话，上面的查询中last_name查出来的值为空。
 		如果数据库表的某个字段格式不是  英文名 + 下划线，则需使用
 		1，resultMap做字段映射
 		2，或者直接在查询语句里面用as指定
@@ -165,11 +166,11 @@ resultType：返回值类型
 	<!--
 	@MapKey("lastName")
 	public Map<String, Employee> getEmpByLastNameLikeReturnMap(String lastName);
-	id和lastName返回的结果完全不同
 	-->
 	<!--
 	多条记录封装一个map：Map<Integer,Employee>:键是这条记录的主键，值是记录封装后的javaBean
 	@MapKey:告诉mybatis封装这个map的时候使用哪个属性作为map的key
+	id和lastName返回的结果完全不同。每一个id都不同，会返回所有的数据。lastName有重复的，重复的lastName会被覆盖
 	-->
  	<select id="getEmpByLastNameLikeReturnMap" resultType="com.atguigu.mybatis.bean.Employee">
  		select * from tbl_employee where last_name like #{lastName}

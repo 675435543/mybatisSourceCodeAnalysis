@@ -247,7 +247,7 @@ public class MyBatisTest {
 	}
 
 	/**
-	 *
+	 *返回一个map；key是指定的列名，值是封装后的javaBean
 	 */
 	@Test
 	public void test12() throws IOException{
@@ -262,38 +262,98 @@ public class MyBatisTest {
 		}
 	}
 
+	/**
+	 * 查询Employee的同时查询员工对应的部门
+	 */
 	@Test
 	public void test13() throws IOException{
 		SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
 		SqlSession openSession = sqlSessionFactory.openSession();
 		try{
 			EmployeeMapperPlus mapper = openSession.getMapper(EmployeeMapperPlus.class);
-			/*Employee empById = mapper.getEmpById(1);
-			System.out.println(empById);*/
-			/*Employee empAndDept = mapper.getEmpAndDept(1);
-			System.out.println(empAndDept);
-			System.out.println(empAndDept.getDept());*/
+		/*	Employee empById = mapper.getEmpById(1);
+			System.out.println("===getEmpById===");
+			System.out.println(empById);
+
+			Employee empAndDept01 = mapper.getEmpAndDept01(1);
+			System.out.println("===(1)getEmpAndDept01===");
+			System.out.println(empAndDept01);
+			System.out.println(empAndDept01.getDept());
+
+			Employee empAndDept02 = mapper.getEmpAndDept02(1);
+			System.out.println("===(2)getEmpAndDept02===");
+			System.out.println(empAndDept02);
+			System.out.println(empAndDept02.getDept());*/
+
 			Employee employee = mapper.getEmpByIdStep(3);
-			System.out.println(employee);
-			//System.out.println(employee.getDept());
-			System.out.println(employee.getDept());
+			System.out.println("===(3)getEmpByIdStep===");
+			System.out.println(employee.getLastName());
+			//如果配置了懒加载employee.getLastName()时不会去查部门信息
+//			System.out.println(employee.getDept());
 		}finally{
 			openSession.close();
 		}
-		
-		
 	}
-	
+
+	/**
+	 * 将部门对应的所有员工信息也查询出来
+	 */
 	@Test
 	public void test14() throws IOException{
+		SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
+		SqlSession openSession = sqlSessionFactory.openSession();
+		try{
+			EmployeeMapperPlus mapper = openSession.getMapper(EmployeeMapperPlus.class);
+			List<Employee> list = mapper.getEmployeeListByDepartmentId(1);
+			System.out.println(list);
+		}finally{
+			openSession.close();
+		}
+	}
+
+	/**
+	 * 根据部门id，查询部门信息。与根据员工id，查员工信息类似
+	 */
+	@Test
+	public void test15() throws IOException{
+		SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
+		SqlSession openSession = sqlSessionFactory.openSession();
+		try{
+			DepartmentMapper mapper = openSession.getMapper(DepartmentMapper.class);
+			Department department = mapper.getDeptById(2);
+			System.out.println(department);
+		}finally{
+			openSession.close();
+		}
+	}
+
+	/**
+	 * 根据部门id，查询部门信息。嵌套结果集的方式，将对应员工信息也查出来
+	 */
+	@Test
+	public void test16() throws IOException{
+		SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
+		SqlSession openSession = sqlSessionFactory.openSession();
+		try{
+			DepartmentMapper mapper = openSession.getMapper(DepartmentMapper.class);
+			Department department = mapper.getDeptByIdPlus(1);
+			System.out.println(department);
+			System.out.println(department.getEmps());
+		}finally{
+			openSession.close();
+		}
+	}
+
+	/**
+	 * 根据部门id，查询部门信息。分段查询的方式，将对应员工信息也查出来
+	 */
+	@Test
+	public void test17() throws IOException{
 		SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
 		SqlSession openSession = sqlSessionFactory.openSession();
 		
 		try{
 			DepartmentMapper mapper = openSession.getMapper(DepartmentMapper.class);
-			/*Department department = mapper.getDeptByIdPlus(1);
-			System.out.println(department);
-			System.out.println(department.getEmps());*/
 			Department deptByIdStep = mapper.getDeptByIdStep(1);
 			System.out.println(deptByIdStep.getDepartmentName());
 			System.out.println(deptByIdStep.getEmps());
