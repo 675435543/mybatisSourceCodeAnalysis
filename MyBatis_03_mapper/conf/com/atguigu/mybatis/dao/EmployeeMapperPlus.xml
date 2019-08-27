@@ -168,4 +168,10 @@
 	 		</case>
 	 	</discriminator>
 	 </resultMap>
+
+
+	<!--  public Employee getEmpByIdMyEmpDis(Integer id);-->
+	<select id="getEmpByIdMyEmpDis" resultMap="MyEmpDis" >
+		select * from tbl_employee where id=#{id}
+	</select>
 </mapper>

@@ -16,4 +16,6 @@ public interface EmployeeMapperPlus {
 	
 	public List<Employee> getEmployeeListByDepartmentId(Integer deptId);
 
+	public Employee getEmpByIdMyEmpDis(Integer id);
+	
 }

@@ -70,4 +70,19 @@ public class EmployeeMapperPlusTest {
         }
     }
 
+    /**
+     * 查询Employee,鉴别器,根据某列的值改变封装行为
+     */
+    @Test
+    public void testGetEmpByIdMyEmpDis() throws IOException{
+        SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
+        SqlSession openSession = sqlSessionFactory.openSession();
+        try{
+            EmployeeMapperPlus mapper = openSession.getMapper(EmployeeMapperPlus.class);
+            Employee employee = mapper.getEmpByIdMyEmpDis(1);
+            System.out.println(employee);
+        }finally{
+            openSession.close();
+        }
+    }
 }
