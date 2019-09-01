@@ -5,9 +5,6 @@ import java.util.List;
 
 public class Department implements Serializable{
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private Integer id;
 	private String departmentName;
@@ -23,7 +20,6 @@ public class Department implements Serializable{
 	}
 	public Department() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 	public List<Employee> getEmps() {
 		return emps;

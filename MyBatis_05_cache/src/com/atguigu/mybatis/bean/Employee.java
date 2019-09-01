@@ -7,9 +7,6 @@ import org.apache.ibatis.type.Alias;
 @Alias("emp")
 public class Employee implements Serializable{
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private Integer id;
 	private String lastName;
@@ -20,9 +17,7 @@ public class Employee implements Serializable{
 	public Employee() {
 		super();
 	}
-	
-	
-	
+
 	public Employee(Integer id, String lastName, String email, String gender,
 			Department dept) {
 		super();

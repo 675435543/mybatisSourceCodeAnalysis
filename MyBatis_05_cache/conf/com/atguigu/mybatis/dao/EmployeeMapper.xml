@@ -5,135 +5,177 @@
 <mapper namespace="com.atguigu.mybatis.dao.EmployeeMapper">
 
 
-	<cache type="org.mybatis.caches.ehcache.EhcacheCache"></cache>
-	<!-- <cache eviction="FIFO" flushInterval="60000" readOnly="false" size="1024"></cache> -->
-	<!--  
-	eviction:缓存的回收策略：
-		• LRU – 最近最少使用的：移除最长时间不被使用的对象。
-		• FIFO – 先进先出：按对象进入缓存的顺序来移除它们。
-		• SOFT – 软引用：移除基于垃圾回收器状态和软引用规则的对象。
-		• WEAK – 弱引用：更积极地移除基于垃圾收集器状态和弱引用规则的对象。
-		• 默认的是 LRU。
-	flushInterval：缓存刷新间隔
-		缓存多长时间清空一次，默认不清空，设置一个毫秒值
-	readOnly:是否只读：
-		true：只读；mybatis认为所有从缓存中获取数据的操作都是只读操作，不会修改数据。
-				 mybatis为了加快获取速度，直接就会将数据在缓存中的引用交给用户。不安全，速度快
-		false：非只读：mybatis觉得获取的数据可能会被修改。
-				mybatis会利用序列化&反序列的技术克隆一份新的数据给你。安全，速度慢
-	size：缓存存放多少元素；
-	type=""：指定自定义缓存的全类名；
-			实现Cache接口即可；
-	-->
-
-<!-- 
+<!--
 namespace:名称空间;指定为接口的全类名
+public Employee getEmpById(Integer id);
+ -->
+
+<!--
+接口式编程
+1，原生：		Dao/接口	====>  DaoImpl/实现类,
+2，mybatis：	Mapper/接口	====>  Mapper.xml/配置文件 （将接口和xml进行绑定）
+mapper接口没有实现类，但是mybatis会为这selectEmp个接口生成一个代理对象。
+EmployeeMapper empMapper =	sqlSession.getMapper(EmployeeMapper.class);
+-->
+
+<!--
 id：唯一标识
 resultType：返回值类型
 #{id}：从传递过来的参数中取出id值
-public Employee getEmpById(Integer id);
- -->
- 
- 	<!--public Map<Integer, Employee> getEmpByLastNameLikeReturnMap(String lastName);  -->
- 	<select id="getEmpByLastNameLikeReturnMap" resultType="com.atguigu.mybatis.bean.Employee">
- 		select * from tbl_employee where last_name like #{lastName}
- 	</select>
- 
- 	<!--public Map<String, Object> getEmpByIdReturnMap(Integer id);  -->
- 	<select id="getEmpByIdReturnMap" resultType="map">
- 		select * from tbl_employee where id=#{id}
- 	</select>
- 
-	<!-- public List<Employee> getEmpsByLastNameLike(String lastName); -->
-	<!--resultType：如果返回的是一个集合，要写集合中元素的类型  -->
-	<select id="getEmpsByLastNameLike" resultType="com.atguigu.mybatis.bean.Employee">
-		select * from tbl_employee where last_name like #{lastName}
+-->
+	<select id="selectEmp" resultType="com.atguigu.mybatis.bean.Employee">
+		select id,last_name lastName,email,gender from tbl_employee where id = #{id}
 	</select>
 
- 	<!-- public Employee getEmpByMap(Map<String, Object> map); -->
- 	<select id="getEmpByMap" resultType="com.atguigu.mybatis.bean.Employee">
- 		select * from ${tableName} where id=${id} and last_name=#{lastName}
- 	</select>
- 
- 	<!--  public Employee getEmpByIdAndLastName(Integer id,String lastName);-->
- 	<select id="getEmpByIdAndLastName" resultType="com.atguigu.mybatis.bean.Employee">
- 		select * from tbl_employee where id = #{id} and last_name=#{lastName}
- 	</select>
- 	
- 	<select id="getEmpById" resultType="com.atguigu.mybatis.bean.Employee">
+	<select id="getEmpById" resultType="com.atguigu.mybatis.bean.Employee">
 		select * from tbl_employee where id = #{id}
 	</select>
-	<select id="getEmpById" resultType="com.atguigu.mybatis.bean.Employee"
-		databaseId="mysql" useCache="true">
-		select * from tbl_employee where id = #{id}
-	</select>
-	<select id="getEmpById" resultType="com.atguigu.mybatis.bean.Employee"
-		databaseId="oracle">
-		select EMPLOYEE_ID id,LAST_NAME	lastName,EMAIL email 
-		from employees where EMPLOYEE_ID=#{id}
-	</select>
-	
-	<!-- public void addEmp(Employee employee); -->
-	<!-- parameterType：参数类型，可以省略， 
-	获取自增主键的值：
-		mysql支持自增主键，自增主键值的获取，mybatis也是利用statement.getGenreatedKeys()；
-		useGeneratedKeys="true"；使用自增主键获取主键值策略
-		keyProperty；指定对应的主键属性，也就是mybatis获取到主键值以后，将这个值封装给javaBean的哪个属性
+	<!--
+		驼峰命名相关注意事项：
+		1，在setting中设置好数据库字段跟类的成员变量匹配规则。<setting name="mapUnderscoreToCamelCase" value="true"/>
+		2，数据库表的字段格式： 英文名 + 下划线
+	    3，resultType中，类的成员变量格式：驼峰
+		直接取数据库的各个字段，不做转换。
+		1，select id,last_name,email,gender from employees where id = #{id}
+		2，select * from tbl_employee where id = #{id}
+		在setting里面不做配置的话，上面的查询中last_name查出来的值为空。
+		如果数据库表的某个字段格式不是  英文名 + 下划线，则需使用
+		1，resultMap做字段映射
+		2，或者直接在查询语句里面用as指定
+
+		databaseId要跟前面环境指定的数据库保持一致。<environments default="dev_mysql">
+		当然也可以省略啦
+		<select id="getEmpById" resultType="com.atguigu.mybatis.bean.Employee"
+			databaseId="mysql">
+			select * from tbl_employee where id = #{id}
+		</select>
+		<select id="getEmpById" resultType="com.atguigu.mybatis.bean.Employee"
+			databaseId="oracle">
+			select *  from tbl_employee where id=#{id}
+		</select>
+	-->
+
+	<!--
+		获取自增主键的值：
+		parameterType：参数类型，可以省略。
+		mysql支持自增主键，mybatis通过statement.getGenreatedKeys()获取自增主键的值。
+		方法：useGeneratedKeys="true" keyProperty="id"。指定对应的主键属性，mybatis获取到主键值以后，将这个值封装给javaBean的那个属性
+		对上面的解释：设置是否使用JDBC的getGenereatedKeys方法获取主键并赋值到keyProperty设置的领域模型属性中。
+
+		MySQL和SQLServer执行auto-generated key field，因此当数据库设置好自增长主键后，可通过JDBC的getGeneratedKeys方法获取。
+		但像Oralce等不支持auto-generated key field的数据库就不能用这种方法获取主键了
 	-->
 	<insert id="addEmp" parameterType="com.atguigu.mybatis.bean.Employee"
-		useGeneratedKeys="true" keyProperty="id" databaseId="mysql"
-		flushCache="true">
-		insert into tbl_employee(last_name,email,gender) 
+			useGeneratedKeys="true" keyProperty="id"  databaseId="mysql">
+		insert into tbl_employee(last_name,email,gender)
 		values(#{lastName},#{email},#{gender})
 	</insert>
-	
-	<!-- 
-	获取非自增主键的值：
-		Oracle不支持自增；Oracle使用序列来模拟自增；
+
+	<!--
+		获取非自增主键的值：
+		Oracle不支持自增主键；
+		Oracle使用序列来模拟自增；
 		每次插入的数据的主键是从序列中拿到的值；如何获取到这个值；
 	 -->
 	<insert id="addEmp" databaseId="oracle">
-		<!-- 
-		keyProperty:查出的主键值封装给javaBean的哪个属性
+	<!--
+		keyProperty:查出的主键值封装给javaBean的那个属性
 		order="BEFORE":当前sql在插入sql之前运行
-			   AFTER：当前sql在插入sql之后运行
+			  "AFTER"：当前sql在插入sql之后运行
 		resultType:查出的数据的返回值类型
-		
+
 		BEFORE运行顺序：
 			先运行selectKey查询id的sql；查出id值封装给javaBean的id属性
 			在运行插入的sql；就可以取出id属性对应的值
 		AFTER运行顺序：
 			先运行插入的sql（从序列中取出新值作为id）；
 			再运行selectKey查询id的sql；
+		注意：xml里面不能有这样的注释/*我是注释*/，否则运行时会报错，半天还找不到原因。
 		 -->
 		<selectKey keyProperty="id" order="BEFORE" resultType="Integer">
 			<!-- 编写查询主键的sql语句 -->
 			<!-- BEFORE-->
-			select EMPLOYEES_SEQ.nextval from dual 
-			<!-- AFTER：
-			 select EMPLOYEES_SEQ.currval from dual -->
-		</selectKey>
-		
-		<!-- 插入时的主键是从序列中拿到的 -->
-		<!-- BEFORE:-->
-		insert into employees(EMPLOYEE_ID,LAST_NAME,EMAIL) 
-		values(#{id},#{lastName},#{email<!-- ,jdbcType=NULL -->}) 
-		<!-- AFTER：
-		insert into employees(EMPLOYEE_ID,LAST_NAME,EMAIL) 
-		values(employees_seq.nextval,#{lastName},#{email}) -->
-	</insert>
-	
-	<!-- public void updateEmp(Employee employee);  -->
-	<update id="updateEmp">
-		update tbl_employee 
-		set last_name=#{lastName},email=#{email},gender=#{gender}
-		where id=#{id}
-	</update>
-	
-	<!-- public void deleteEmpById(Integer id); -->
-	<delete id="deleteEmpById">
-		delete from tbl_employee where id=#{id}
-	</delete>
-	
-	
+
+			select SEQ_TBL_EMPLOYEE.nextval from dual
+
+			<!-- AFTER：-->
+			<!--
+            select SEQ_TBL_EMPLOYEE.currval from dual
+        	-->
+         </selectKey>
+
+         <!-- 插入时的主键是从序列中拿到的 -->
+		 <!-- BEFORE:-->
+         insert into tbl_employee(ID,LAST_NAME,EMAIL,GENDER)
+         values(#{id},#{lastName},#{email},#{gender})
+         <!-- AFTER：-->
+		 <!--
+         insert into tbl_employee(ID,LAST_NAME,EMAIL,GENDER)
+         values(SEQ_TBL_EMPLOYEE.nextval,#{lastName},#{email},#{gender})
+		 -->
+    </insert>
+
+    <update id="updateEmp">
+        update tbl_employee
+        set last_name=#{lastName},email=#{email},gender=#{gender}
+        where id=#{id}
+    </update>
+
+    <delete id="deleteEmpById">
+        delete from tbl_employee where id=#{id}
+    </delete>
+
+	<!--  public Employee getEmpByIdAndLastNameDefault(Integer id,String lastName);-->
+	<select id="getEmpByIdAndLastNameDefault" resultType="com.atguigu.mybatis.bean.Employee">
+		select * from tbl_employee where id = #{arg0} and last_name=#{arg1}
+<!--
+		select * from tbl_employee where id = #{param1} and last_name=#{param2}
+-->
+        </select>
+
+	<!-- public Employee getEmpByMap(Map<String, Object> map); -->
+	<select id="getEmpByMap" resultType="com.atguigu.mybatis.bean.Employee">
+		select * from ${tableName} where id=${id} and last_name=#{lastName}
+	</select>
+
+    <!--  public Employee getEmpByIdAndLastName(@Param("id")Integer id,@Param("lastName")String lastName);-->
+	<select id="getEmpByIdAndLastName" resultType="com.atguigu.mybatis.bean.Employee">
+		select * from tbl_employee where id = #{id} and last_name=#{lastName}
+	</select>
+
+	<!--public Employee getEmpByPojo(Employee employee);-->
+	<select id="getEmpByPojo" resultType="com.atguigu.mybatis.bean.Employee">
+		select * from tbl_employee where id=${id} and last_name=#{lastName}
+	</select>
+
+	<!--public Employee getEmpByList(List<Integer> list );-->
+	<select id="getEmpByList" resultType="com.atguigu.mybatis.bean.Employee">
+		select * from tbl_employee where id=#{list[0]}
+	</select>
+
+	<!-- public List<Employee> getEmpsByLastNameLike(String lastName); -->
+	<select id="getEmpsByLastNameLike" resultType="com.atguigu.mybatis.bean.Employee">
+		select * from tbl_employee where last_name like #{lastName}
+	</select>
+
+	<!--public Map<String, Object> getEmpByIdReturnMap(Integer id);  -->
+	<!--返回一条记录的map；key就是列名，值就是对应的值-->
+	<select id="getEmpByIdReturnMap" resultType="map">
+		select * from tbl_employee where id=#{id}
+	</select>
+
+
+	<!--
+	@MapKey("lastName")
+	public Map<String, Employee> getEmpByLastNameLikeReturnMap(String lastName);
+	-->
+	<!--
+	多条记录封装一个map：Map<Integer,Employee>:键是这条记录的主键，值是记录封装后的javaBean
+	@MapKey:告诉mybatis封装这个map的时候使用哪个属性作为map的key
+	id和lastName返回的结果完全不同。每一个id都不同，会返回所有的数据。lastName有重复的，重复的lastName会被覆盖
+	-->
+ 	<select id="getEmpByLastNameLikeReturnMap" resultType="com.atguigu.mybatis.bean.Employee">
+ 		select * from tbl_employee where last_name like #{lastName}
+ 	</select>
+
 </mapper>
