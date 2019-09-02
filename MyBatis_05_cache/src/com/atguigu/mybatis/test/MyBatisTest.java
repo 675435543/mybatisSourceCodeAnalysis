@@ -565,18 +565,28 @@ public class MyBatisTest {
 	 * 	
 	 * 和缓存有关的设置/属性：
 	 * 		1）、cacheEnabled=true  开启二级缓存
-	 * 			false：关闭二级缓存，而一级缓存是一直可用的
-	 * 		2）、每个select标签都有useCache="true"：
-	 * 				false：不使用缓存（二级缓存不使用，而一级缓存依然使用）
-	 * 		3）、【每个增删改标签的：flushCache="true"：（一级二级都会清除）】
-	 * 				增删改执行完成后就会清楚缓存；
-	 * 				测试：flushCache="true"：一级缓存就清空了；二级也会被清除；
-	 * 				查询标签：flushCache="false"：
-	 * 					如果flushCache=true;每次查询之后都会清空缓存；缓存是没有被使用的；
-	 * 		4）、sqlSession.clearCache();只是清楚当前session的一级缓存；
-	 * 		5）、localCacheScope：本地缓存作用域：（一级缓存SESSION）；当前会话的所有数据保存在会话缓存中；
-	 * 								STATEMENT：可以禁用一级缓存；		
-	 * 				
+	 * 			false：关闭二级缓存，而一级缓存依然开启
+	 * 		2）、useCache="true"：使用二级缓存
+	 * 			 useCache="false"：不使用二级缓存, 而一级缓存依然使用
+	 * 				也就是说，不管你前面怎么配置的，这里使不使用缓存是我说了算。
+	 * 			    查询标签有，增删改便签没有
+	 * 		3）、flushCache="true" 执行完成后就会清除缓存；一级二级都会清除
+	 * 			flushCache="false"：执行完成后就会清除缓存；一级二级不会被清除
+	 * 				对于查询标签 和 增删改便签都可设置
+	 * 			默认的配置（3.5.2版本的mybatis）
+	 * 			<select ... flushCache="false" useCache="true"/>
+	 * 			<insert ... flushCache="true"/>
+	 * 			<update ... flushCache="true"/>
+	 * 			<delete ... flushCache="true"/>
+	 * 		4）、sqlSession.clearCache();只是清除当前session的一级缓存；
+	 * 		5）、localCacheScope：SESSION | STATEMENT
+	 * 			本地缓存作用域：默认是SESSION，指一级缓存；当前会话的所有数据保存在会话缓存中；
+	 * 							STATEMENT：禁用一级缓存；
+	 * 缓存的顺序：
+	 * 		二级缓存；
+	 * 		一级缓存：
+	 * 		数据库
+	 *
 	 *第三方缓存整合：
 	 *		1）、导入第三方缓存包即可；
 	 *		2）、导入与第三方缓存整合的适配包；官方有；
@@ -705,10 +715,12 @@ public class MyBatisTest {
 	}
 
 	/**
-	 * 第二次查询是从二级缓存中拿到的数据，并没有发送新的sql
+	 *  EmployeeMapperCache
+	 * 	<select ... flushCache="false" useCache="true"/>
+	 *  第二次查询是从二级缓存中拿到的数据，并没有发送新的sql
 	 */
 	@Test
-	public void testSecondLevelCache() throws IOException{
+	public void testSecondLevelCache01() throws IOException{
 		SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
 		SqlSession openSession1 = sqlSessionFactory.openSession();
 		SqlSession openSession2 = sqlSessionFactory.openSession();
@@ -719,8 +731,6 @@ public class MyBatisTest {
 			Employee emp01 = mapper1.getEmpById(1);
 			System.out.println(emp01);
 			openSession1.close();
-
-			//mapper2.addEmp(new Employee(null, "aaa", "nnn", "0"));
 			Employee emp02 = mapper2.getEmpById(1);
 			System.out.println(emp02);
 			System.out.println(emp01==emp02);//一级缓存相同的话它们为true，二级缓存并没有这个规律
@@ -732,7 +742,9 @@ public class MyBatisTest {
 	}
 
 	/**
-	 * 第二次查询是从二级缓存中拿到的数据，并没有发送新的sql
+	 *  DepartmentMapperCache
+	 * 	<select ... flushCache="false" useCache="true"/>
+	 *  第二次查询是从二级缓存中拿到的数据，并没有发送新的sql
 	 */
 	@Test
 	public void testSecondLevelCache02() throws IOException{
@@ -743,12 +755,13 @@ public class MyBatisTest {
 			DepartmentMapperCache mapper1 = openSession1.getMapper(DepartmentMapperCache.class);
 			DepartmentMapperCache mapper2 = openSession2.getMapper(DepartmentMapperCache.class);
 			
-			Department deptById = mapper1.getDeptById(1);
-			System.out.println(deptById);
+			Department deptById1 = mapper1.getDeptById(1);
+			System.out.println(deptById1);
 			openSession1.close();
 			
 			Department deptById2 = mapper2.getDeptById(1);
 			System.out.println(deptById2);
+			System.out.println(deptById1==deptById2);
 			openSession2.close();
 
 		}finally{
@@ -756,5 +769,60 @@ public class MyBatisTest {
 		}
 	}
 
+	/**
+	 * EmployeeMapperCache
+	 * <insert ... flushCache="true"/>
+	 */
+	@Test
+	public void testSecondLevelCache03() throws IOException{
+		SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
+		SqlSession openSession1 = sqlSessionFactory.openSession();
+		SqlSession openSession2 = sqlSessionFactory.openSession();
+		try{
+			EmployeeMapperCache mapper1 = openSession1.getMapper(EmployeeMapperCache.class);
+			EmployeeMapperCache mapper2 = openSession2.getMapper(EmployeeMapperCache.class);
+
+			Employee emp01 = mapper1.getEmpById(1);
+			System.out.println(emp01);
+			openSession1.close();
+
+			mapper2.addEmp(new Employee(null, "aaa", "nnn", "0"));
+			Employee emp02 = mapper2.getEmpById(1);
+			System.out.println(emp02);
+			System.out.println(emp01==emp02);
+			openSession2.close();
+
+		}finally{
+
+		}
+	}
+
+
+	/**
+	 * EmployeeMapperEhcache
+	 */
+	@Test
+	public void testSecondLevelCacheEhcache() throws IOException{
+		SqlSessionFactory sqlSessionFactory = getSqlSessionFactory();
+		SqlSession openSession1 = sqlSessionFactory.openSession();
+		SqlSession openSession2 = sqlSessionFactory.openSession();
+		try{
+			EmployeeMapperEhcache mapper1 = openSession1.getMapper(EmployeeMapperEhcache.class);
+			EmployeeMapperEhcache mapper2 = openSession2.getMapper(EmployeeMapperEhcache.class);
+
+			Employee emp01 = mapper1.getEmpById(1);
+			System.out.println(emp01);
+			openSession1.close();
+
+			//mapper2.addEmp(new Employee(null, "aaa", "nnn", "0"));
+			Employee emp02 = mapper2.getEmpById(1);
+			System.out.println(emp02);
+			System.out.println(emp01==emp02);
+			openSession2.close();
+
+		}finally{
+
+		}
+	}
 
 }

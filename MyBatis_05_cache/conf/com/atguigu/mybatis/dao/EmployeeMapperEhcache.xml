@@ -2,10 +2,11 @@
 <!DOCTYPE mapper
  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.atguigu.mybatis.dao.EmployeeMapperCache">
+<mapper namespace="com.atguigu.mybatis.dao.EmployeeMapperEhcache">
 
-	<cache eviction="FIFO" flushInterval="60000" readOnly="false" size="1024"></cache>
-	<!--  
+
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache"></cache>
+	<!--  下面的参数依然有效
 	eviction:缓存的回收策略：
 		• LRU – 最近最少使用的：移除最长时间不被使用的对象。
 		• FIFO – 先进先出：按对象进入缓存的顺序来移除它们。
@@ -22,7 +23,8 @@
 	size：缓存存放多少元素；
 	type="",指定自定义缓存的全类名
 			实现Cache接口即可
-	-->
+-->
+
 
 	<select id="getEmpById" resultType="com.atguigu.mybatis.bean.Employee" useCache="true">
 		select * from tbl_employee where id = #{id}
