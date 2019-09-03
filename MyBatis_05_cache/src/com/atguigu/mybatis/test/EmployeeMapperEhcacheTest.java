@@ -25,8 +25,12 @@ public class EmployeeMapperEhcacheTest {
      *		2）、导入与第三方缓存整合的适配包；官方有；
      *		3）、mapper.xml中使用自定义缓存
      *		<cache type="org.mybatis.caches.ehcache.EhcacheCache"></cache>
+     *
+     *引用缓存：namespace：指定和哪个名称空间下的缓存一样
+     *      <cache-ref namespace="com.atguigu.mybatis.dao.EmployeeMapperCache"/>
+     *
+     *
      */
-
 
     /**
      * EmployeeMapperEhcache
