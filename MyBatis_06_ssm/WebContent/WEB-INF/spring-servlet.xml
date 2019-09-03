@@ -21,4 +21,19 @@
 	
 	<mvc:annotation-driven></mvc:annotation-driven>
 	<mvc:default-servlet-handler/>
+
+	<!--
+		请参见文章  https://www.cnblogs.com/dflmg/p/6393416.html
+		(1) <mvc:default-servlet-handler/>的作用
+		会在Spring MVC上下文中定义一个org.springframework.web.servlet.resource.DefaultServletHttpRequestHandler
+		它会像一个检查员，对进入DispatcherServlet的URL进行筛查
+		1, 如果发现是静态资源的请求，就将该请求转由Web应用服务器默认的Servlet处理
+		2, 如果不是静态资源的请求，才由DispatcherServlet继续处理
+
+		(2) <mvc:resources />作用
+		由Spring MVC框架自己处理静态资源,并且允许静态资源放在任何地方
+		<mvc:resources location="/,classpath:/META-INF/publicResources/" mapping="/resources/**"/>
+		假设Web根路径下拥有images、js这两个资源目录,在images下面有bg.gif图片，在js下面有test.js文件
+		可以通过 /resources/images/bg.gif 和 /resources/js/test.js 访问这二个静态资源
+	-->
 </beans>

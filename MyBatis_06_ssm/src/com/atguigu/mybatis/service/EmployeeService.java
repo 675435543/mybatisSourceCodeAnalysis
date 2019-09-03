@@ -19,7 +19,6 @@ public class EmployeeService {
 	private SqlSession sqlSession;
 	
 	public List<Employee> getEmps(){
-		//
 		//EmployeeMapper mapper = sqlSession.getMapper(EmployeeMapper.class);
 		return employeeMapper.getEmps();
 	}
