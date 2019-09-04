@@ -13,4 +13,11 @@
 	<select id="getEmps" resultType="com.atguigu.mybatis.bean.Employee">
 		select * from tbl_employee
 	</select>
+
+	<select id="getNameAndValue" resultType="com.atguigu.mybatis.bean.NameAndVal">
+		SELECT mm.last_name,mm.val FROM
+			(
+				SELECT last_name,COUNT(*) AS val FROM tbl_employee GROUP BY last_name
+			)mm
+	</select>
 </mapper>

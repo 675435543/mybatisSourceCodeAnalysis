@@ -2,6 +2,7 @@ package com.atguigu.mybatis.service;
 
 import java.util.List;
 
+import com.atguigu.mybatis.bean.NameAndVal;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,11 @@ public class EmployeeService {
 	public List<Employee> getEmps(){
 		//EmployeeMapper mapper = sqlSession.getMapper(EmployeeMapper.class);
 		return employeeMapper.getEmps();
+	}
+
+	public List<NameAndVal> getNameAndValue(){
+		//EmployeeMapper mapper = sqlSession.getMapper(EmployeeMapper.class);
+		return employeeMapper.getNameAndValue();
 	}
 
 }
