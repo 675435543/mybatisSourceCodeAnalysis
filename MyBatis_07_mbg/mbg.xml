@@ -6,8 +6,7 @@
 
 	<!-- 
 		targetRuntime="MyBatis3Simple":生成简单版的CRUD
-		MyBatis3:豪华版
-	
+		targetRuntime="MyBatis3":生成豪华版的CRUD
 	 -->
   <context id="DB2Tables" targetRuntime="MyBatis3">
   	<!-- jdbcConnection：指定如何连接到目标数据库 -->
@@ -17,7 +16,6 @@
         password="123456">
     </jdbcConnection>
 
-	<!--  -->
     <javaTypeResolver >
       <property name="forceBigDecimals" value="false" />
     </javaTypeResolver>
@@ -32,7 +30,7 @@
       <property name="trimStrings" value="true" />
     </javaModelGenerator>
 
-	<!-- sqlMapGenerator：sql映射生成策略： -->
+	<!-- sqlMapGenerator：sql映射生成策略. xml文件生成的位置 -->
     <sqlMapGenerator targetPackage="com.atguigu.mybatis.dao"  
     	targetProject=".\conf">
       <property name="enableSubPackages" value="true" />
