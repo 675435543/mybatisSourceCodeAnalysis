@@ -23,14 +23,13 @@ public class MySecondPlugin implements Interceptor{
 
 	@Override
 	public Object plugin(Object target) {
-		// TODO Auto-generated method stub
 		System.out.println("MySecondPlugin...plugin:"+target);
 		return Plugin.wrap(target, this);
 	}
 
 	@Override
 	public void setProperties(Properties properties) {
-		// TODO Auto-generated method stub
+
 	}
 
 }

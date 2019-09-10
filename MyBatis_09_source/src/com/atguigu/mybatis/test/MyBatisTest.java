@@ -53,7 +53,7 @@ public class MyBatisTest {
 	 *  		4）、调用 StatementHandler 的增删改查方法；
 	 *  		5）、ResultSetHandler 封装结果
 	 *  注意：
-	 *  	四大对象每个创建的时候都有一个interceptorChain.pluginAll(parameterHandler);
+	 *  	四大对象每个创建的时候都有一个 interceptorChain.pluginAll(parameterHandler);
 	 * 
 	 * @throws IOException
 	 */

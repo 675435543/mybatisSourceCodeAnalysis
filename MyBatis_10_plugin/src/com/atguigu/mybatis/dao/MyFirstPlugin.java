@@ -2,7 +2,6 @@ package com.atguigu.mybatis.dao;
 
 import java.util.Properties;
 
-import org.apache.ibatis.executor.parameter.ParameterHandler;
 import org.apache.ibatis.executor.statement.StatementHandler;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.plugin.Intercepts;
@@ -28,9 +27,8 @@ public class MyFirstPlugin implements Interceptor{
 	 */
 	@Override
 	public Object intercept(Invocation invocation) throws Throwable {
-		// TODO Auto-generated method stub
 		System.out.println("MyFirstPlugin...intercept:"+invocation.getMethod());
-		//动态的改变一下sql运行的参数：以前1号员工，实际从数据库查询3号员工
+		//动态的改变一下sql运行的参数：以前是查1号员工，现在实际从数据库查询3号员工
 		Object target = invocation.getTarget();
 		System.out.println("当前拦截到的对象："+target);
 		//拿到：StatementHandler==>ParameterHandler===>parameterObject
@@ -39,7 +37,7 @@ public class MyFirstPlugin implements Interceptor{
 		Object value = metaObject.getValue("parameterHandler.parameterObject");
 		System.out.println("sql语句用的参数是："+value);
 		//修改完sql语句要用的参数
-		metaObject.setValue("parameterHandler.parameterObject", 11);
+		metaObject.setValue("parameterHandler.parameterObject", 3);
 		//执行目标方法
 		Object proceed = invocation.proceed();
 		//返回执行后的返回值
@@ -52,11 +50,10 @@ public class MyFirstPlugin implements Interceptor{
 	 */
 	@Override
 	public Object plugin(Object target) {
-		// TODO Auto-generated method stub
-		//我们可以借助Plugin的wrap方法来使用当前Interceptor包装我们目标对象
 		System.out.println("MyFirstPlugin...plugin:mybatis将要包装的对象"+target);
-		Object wrap = Plugin.wrap(target, this);
+		//借助Plugin的wrap方法来使用当前Interceptor包装我们目标对象
 		//返回为当前target创建的动态代理
+		Object wrap = Plugin.wrap(target, this);
 		return wrap;
 	}
 
@@ -66,7 +63,6 @@ public class MyFirstPlugin implements Interceptor{
 	 */
 	@Override
 	public void setProperties(Properties properties) {
-		// TODO Auto-generated method stub
 		System.out.println("插件配置的信息："+properties);
 	}
 
