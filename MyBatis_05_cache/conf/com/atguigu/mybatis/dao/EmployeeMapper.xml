@@ -67,8 +67,8 @@ resultType：返回值类型
 	-->
 	<insert id="addEmp" parameterType="com.atguigu.mybatis.bean.Employee"
 			useGeneratedKeys="true" keyProperty="id"  databaseId="mysql">
-		insert into tbl_employee(last_name,email,gender)
-		values(#{lastName},#{email},#{gender})
+		insert into tbl_employee(last_name,email,gender,d_id)
+		values(#{lastName},#{email},#{gender},#{dept.id})
 	</insert>
 
 	<!--

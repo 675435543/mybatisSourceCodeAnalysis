@@ -5,11 +5,19 @@
 <configuration>
 	<properties resource="dbconfig.properties"></properties>
 	<typeHandlers>
-		<!--1、配置我们自定义的TypeHandler  -->
+		<!--
+		1，不做任何配置保存枚举的名字
+		2，默认配置保存枚举索引-->
+		<!--<typeHandler handler="org.apache.ibatis.type.EnumOrdinalTypeHandler" javaType="com.atguigu.mybatis.bean.EmpStatus"/>-->
+
+		<!--
+		3、配置我们自定义的TypeHandler  -->
 		<typeHandler handler="com.atguigu.mybatis.typehandler.MyEnumEmpStatusTypeHandler" javaType="com.atguigu.mybatis.bean.EmpStatus"/>
-		<!--2、也可以在处理某个字段的时候告诉MyBatis用什么类型处理器
-				保存：#{empStatus,typeHandler=xxxx}
-				查询：
+
+		<!--
+		4、也可以在处理某个字段的时候告诉MyBatis用什么类型处理器
+			4.1保存：#{empStatus,typeHandler=xxxx}
+			4.2查询：
 					<resultMap type="com.atguigu.mybatis.bean.Employee" id="MyEmp">
 				 		<id column="id" property="id"/>
 				 		<result column="empStatus" property="empStatus" typeHandler=""/>
@@ -48,6 +56,11 @@
 		<property name="SQL Server" value="sqlserver"/>
 	</databaseIdProvider>
 	<!-- 将我们写好的sql映射文件（EmployeeMapper.xml）一定要注册到全局配置文件（mybatis-config.xml）中 -->
+	<!--
+		两个重要的配置文件：
+		1，mybatis的全局配置文件：包含数据库连接池信息，事务管理器信息等...系统运行环境信息
+	 	2，sql映射文件：保存了每一个sql语句的映射信息：将sql抽取出来。
+	-->
 	<mappers>
 		<mapper resource="EmployeeMapper.xml" />
 	</mappers>

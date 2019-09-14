@@ -6,12 +6,18 @@ import com.atguigu.mybatis.bean.Employee;
 import com.atguigu.mybatis.bean.OraclePage;
 
 public interface EmployeeMapper {
-	
+
+	public Employee selectEmp(Integer id);
+
 	public Employee getEmpById(Integer id);
 	
 	public List<Employee> getEmps();
 	
 	public Long addEmp(Employee employee);
-	
+
+	public Long addEmpWithEmpStatus(Employee employee);
+
+	public Employee getEmpByIdWithEmpStatus(Integer id);
+
 	public void getPageByProcedure(OraclePage page);
 }

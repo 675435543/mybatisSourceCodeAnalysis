@@ -3,35 +3,89 @@
  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.atguigu.mybatis.dao.EmployeeMapper">
-<!-- 
+<!--
 namespace:名称空间;指定为接口的全类名
+public Employee getEmpById(Integer id);
+ -->
+
+<!--
+接口式编程
+1，原生：		Dao/接口	====>  DaoImpl/实现类,
+2，mybatis：	Mapper/接口	====>  Mapper.xml/配置文件 （将接口和xml进行绑定）
+mapper接口没有实现类，但是mybatis会为这selectEmp个接口生成一个代理对象。
+EmployeeMapper empMapper =	sqlSession.getMapper(EmployeeMapper.class);
+-->
+
+<!--
 id：唯一标识
 resultType：返回值类型
 #{id}：从传递过来的参数中取出id值
+-->
+	<select id="selectEmp" resultType="com.atguigu.mybatis.bean.Employee">
+		select id,last_name lastName,email,gender from tbl_employee where id = #{id}
+	</select>
 
-public Employee getEmpById(Integer id);
- -->
- 	
-	<select id="getEmpById" resultType="com.atguigu.mybatis.bean.Employee">
+	<select id="getEmpById" resultMap="MyEmp">
 		select id,last_name lastName,email,gender,empStatus from tbl_employee where id = #{id}
 	</select>
-	
+
 	<!--public List<Employee> getEmps();  -->
 	<select id="getEmps" resultType="com.atguigu.mybatis.bean.Employee">
 		select id,last_name lastName,email,gender from tbl_employee
 	</select>
-	
+
 	<!--public Long addEmp(Employee employee);  -->
 	<insert id="addEmp" useGeneratedKeys="true" keyProperty="id">
-		insert into tbl_employee(last_name,email,gender,empStatus) 
-		values(#{lastName},#{email},#{gender},#{empStatus})
+		insert into tbl_employee(last_name,email,gender)
+		values(#{lastName},#{email},#{gender})
 	</insert>
-	
-	
-	<!-- public void getPageByProcedure(); 
-	1、使用select标签定义调用存储过程
-	2、statementType="CALLABLE":表示要调用存储过程
-	3、{call procedure_name(params)}
+
+	<!--public Long addEmpWithEmpStatus(Employee employee);-->
+	<insert id="addEmpWithEmpStatus" useGeneratedKeys="true" keyProperty="id">
+		insert into tbl_employee(last_name,email,gender,empStatus)
+		values(#{lastName},#{email},#{gender},#{empStatus})
+		<!--
+		4、也可以在处理某个字段的时候告诉MyBatis用什么类型处理器
+		  4.1 保存：#{empStatus,typeHandler=xxxx}
+		  values(#{lastName},#{email},#{gender},#{empStatus,typeHandler=com.atguigu.mybatis.typehandler.MyEnumEmpStatusTypeHandler})
+		-->
+</insert>
+
+		<!--
+		  4.2查询：
+		  <resultMap type="com.atguigu.mybatis.bean.Employee" id="MyEmp">
+			 <id column="id" property="id"/>
+			 <result column="empStatus" property="empStatus" typeHandler=""/>
+		  </resultMap>
+		  注意：如果在参数位置修改TypeHandler，应该保证保存数据和查询数据用的TypeHandler是一样的。
+	  -->
+
+	<select id="getEmpByIdWithEmpStatus" resultMap="MyEmp">
+		select id,last_name lastName,email,gender,empStatus from tbl_employee where id = #{id}
+	</select>
+	<resultMap type="com.atguigu.mybatis.bean.Employee" id="MyEmp">
+		<id column="id" property="id"/>
+		<result column="empStatus" property="empStatus" typeHandler="com.atguigu.mybatis.typehandler.MyEnumEmpStatusTypeHandler"/>
+	</resultMap>
+<!--
+1，创建存储过程
+create or replace procedure
+       hello_test(
+          p_start in int,p_end in int,p_count out int,p_emps out sys_refcursor
+       )as
+begin
+       select count(*) into p_count from tbl_employee;
+       open p_emps for
+            select * from (select e.*,rownum rn from tbl_employee e where rownum<=p_end)
+            where rn>=p_start;
+end hello_test;
+2，查看创建的存储过程
+select * from user_source;
+-->
+	<!-- public void getPageByProcedure(OraclePage page);
+		1、使用select标签定义调用存储过程
+		2、statementType="CALLABLE":表示要调用存储过程
+		3、{call procedure_name(params)}
 	-->
 	<select id="getPageByProcedure" statementType="CALLABLE" databaseId="oracle">
 		{call hello_test(
@@ -42,8 +96,8 @@ public Employee getEmpById(Integer id);
 		)}
 	</select>
 	<resultMap type="com.atguigu.mybatis.bean.Employee" id="PageEmp">
-		<id column="EMPLOYEE_ID" property="id"/>
-		<result column="LAST_NAME" property="email"/>
+		<id column="ID" property="id"/>
+		<result column="LAST_NAME" property="lastName"/>
 		<result column="EMAIL" property="email"/>
 	</resultMap>
 

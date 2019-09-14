@@ -8,7 +8,6 @@
 	<select id="getDeptById" resultType="com.atguigu.mybatis.bean.Department">
 		select id,dept_name departmentName from tbl_dept where id=#{id}
 	</select>
-	
 
 	<!--
 	public class Department {

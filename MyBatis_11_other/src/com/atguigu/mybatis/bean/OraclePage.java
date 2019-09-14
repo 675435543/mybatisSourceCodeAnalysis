@@ -4,8 +4,6 @@ import java.util.List;
 
 /**
  * 封装分页查询数据
- * @author lfy
- *
  */
 public class OraclePage {
 	

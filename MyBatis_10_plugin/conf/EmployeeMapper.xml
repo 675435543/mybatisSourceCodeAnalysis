@@ -17,6 +17,7 @@ EmployeeMapper empMapper =	sqlSession.getMapper(EmployeeMapper.class);
 -->
 
 <!--
+
 id：唯一标识
 resultType：返回值类型
 #{id}：从传递过来的参数中取出id值

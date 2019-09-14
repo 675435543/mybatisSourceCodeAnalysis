@@ -8,8 +8,8 @@ public class Employee {
 	private String gender;
 	//员工状态
 	private EmpStatus empStatus=EmpStatus.LOGOUT;
-	
-	
+
+
 	public Employee(String lastName, String email, String gender) {
 		super();
 		this.lastName = lastName;
@@ -18,10 +18,9 @@ public class Employee {
 	}
 	public Employee() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 	
-	
+
 	public EmpStatus getEmpStatus() {
 		return empStatus;
 	}

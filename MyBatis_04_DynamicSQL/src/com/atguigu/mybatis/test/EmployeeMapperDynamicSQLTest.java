@@ -129,7 +129,7 @@ public class EmployeeMapperDynamicSQLTest {
     }
 
     /**
-     * 批量保存,需要数据库连接属性
+     * 批量保存,需要设置数据库连接属性
      */
     @Test
     public void testBatchSave02() throws IOException{
